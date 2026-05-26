@@ -11,11 +11,9 @@ from natasha import (
 
 ROOTS = ["компакт", "связн", "замкнут", "открыт"]
 
-# Инициализация Natasha
 segmenter = Segmenter()
-emb = NewsEmbedding()               # загружаем эмбеддинги
-ner_tagger = NewsNERTagger(emb)     # NER-модель
-
+emb = NewsEmbedding()              
+ner_tagger = NewsNERTagger(emb)    
 def natural_sort_key(path):
     numbers = re.findall(r'\d+', path.name)
     return int(numbers[0]) if numbers else 0
@@ -95,7 +93,6 @@ def extract_authors_with_natasha(pdf_reader, pages_to_check=2):
         return []
     
     text = clean_text(" ".join(full_text))
-    # Ограничим первыми 5000 символов – обычно авторы в начале
     text = text[:5000]
     
     doc = Doc(text)
@@ -109,7 +106,6 @@ def extract_authors_with_natasha(pdf_reader, pages_to_check=2):
             if name and len(name) > 1:
                 authors.append(name)
     
-    # Удаляем дубликаты, сохраняя порядок
     unique_authors = []
     for name in authors:
         if name not in unique_authors:
@@ -135,7 +131,6 @@ def process_folder(folder_name="статьи", output_file="result.json"):
         
         try:
             reader = PdfReader(str(pdf_file))
-            # Извлекаем авторов для этого файла
             authors = extract_authors_with_natasha(reader, pages_to_check=2)
             
             for page_num, page in enumerate(reader.pages, start=1):
@@ -162,13 +157,11 @@ def process_folder(folder_name="статьи", output_file="result.json"):
                                     "root": root,
                                     "word": word,
                                     "sentence": context,
-                                    "authors": authors   # авторы в каждом результате
+                                    "authors": authors  
                                 })
-                                break  # переходим к следующему слову
+                                break 
         except Exception as e:
             print(f"Ошибка в {pdf_file.name}: {e}")
-            # При ошибке всё равно добавляем запись в files_statistics,
-            # но авторы не будут добавлены (можно добавить пустой список, но не требуется)
         
         files_statistics[pdf_file.name] = file_stats
 
